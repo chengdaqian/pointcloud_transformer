@@ -10,6 +10,7 @@
 ros::Publisher pc2_msg_pub_;
 bool is_filter_stationary_;
 bool is_imu_init_ = false;
+tf::TransformListener* listener_ptr_ = NULL;
 
 struct imu_data{
     double lin_x;
@@ -82,10 +83,10 @@ void cloud_cb (const sensor_msgs::PointCloud2& input)
             }
         }
     }
-    tf::TransformListener listener_;
+
     ROS_INFO("[PC_TRANS] Got one stationary Point Cloud!");
     sensor_msgs::PointCloud2 pc2_msg_out;
-    pcl_ros::transformPointCloud("world", input, pc2_msg_out, listener_);
+    pcl_ros::transformPointCloud("map", input, pc2_msg_out, *listener_ptr_);
     pc2_msg_pub_.publish(pc2_msg_out);
     imu_data_vec_.clear();
 }
@@ -113,6 +114,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "pointcloud_transformer");
     ros::NodeHandle nh("~");
+    listener_ptr_ = new (tf::TransformListener);
     nh.param<bool>("is_filter_stationary", is_filter_stationary_, true);
     ros::Subscriber pc_sub  = nh.subscribe("/velodyne_points", 50, &cloud_cb);
     ros::Subscriber imu_sub = nh.subscribe("/imu0", 200, &imu_cb);
