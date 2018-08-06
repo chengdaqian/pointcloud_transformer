@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="pointcloud_transformer" type="pointcloud_transformer" name="pointcloud_transformer" output="screen">
+        <param name="~is_filter_stationary" type="bool" value="false"/>
+    </node>
+</launch>
